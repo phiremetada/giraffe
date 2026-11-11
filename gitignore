@@ -1,0 +1,42 @@
+# Giraffe — Node.js / TypeScript / Remotion
+
+# Dependencies
+node_modules/
+
+# Build output and caches
+dist/
+build/
+coverage/
+.cache/
+.remotion/
+*.tsbuildinfo
+
+# Generated film renders (keep each film's output directory)
+films/*/output/**
+!films/*/output/.gitkeep
+
+# Temporary exports and render artifacts
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+*.swp
+*~
+
+# Keep source assets under films/<slug>/images, videos, audio, and storyboard
+# version-controlled by default. Consider Git LFS for large media assets.

@@ -1,0 +1,25 @@
+{
+  "name": "giraffe",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Gamantra illustrated film engine",
+  "scripts": {
+    "dev": "node scripts/giraffe.mjs studio",
+    "studio": "node scripts/giraffe.mjs studio",
+    "render": "node scripts/giraffe.mjs render",
+    "validate": "node scripts/giraffe.mjs validate",
+    "films": "node scripts/giraffe.mjs list"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.0",
+    "@remotion/media": "^4.0.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "remotion": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "typescript": "^5.8.0"
+  }
+}
