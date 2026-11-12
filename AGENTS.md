@@ -17,6 +17,28 @@ Giraffe is Gamantra's standalone illustrated-film engine, built with TypeScript,
 - The approved ending credit is exactly `Living with Awareness @ Gamantra.com`.
 - Work on the Giraffe repository only. Never modify the separate `gamantra-video` project.
 
+## Feature restraint — protect the small engine
+
+**The goal is to make films, not to accumulate features.** Giraffe should become more capable only when real production work demonstrates a need. "Reusable" is necessary for an engine feature, but is **not sufficient** reason to add one.
+
+Before implementing a requested behavior, choose the smallest appropriate level:
+
+1. **Existing configuration or assets:** Prefer a change to the individual film's `edit.json`, `film.json`, media, or a supported existing option. Do not change shared engine code for a film-specific creative choice.
+2. **Small correction to existing behavior:** If the engine already promises the capability but is buggy, fix it narrowly and test for regressions. A bug fix is not a license to redesign the system.
+3. **New shared capability, only when justified:** Add an engine feature only when a concrete film cannot be produced cleanly with existing primitives, and the proposed behavior is sufficiently general, simple and likely to be reused. One film's unusual request does not automatically qualify.
+
+**Guardrails:**
+
+- Do not build speculative abstractions, plugin systems, feature flags, configuration switches, modes, UI controls, helper libraries, or extension points "for future flexibility." No feature merely because a framework supports it.
+- Do not convert a simple one-off into a universal feature. For genuinely film-specific needs, prefer a contained, explicit solution that does not complicate other films; seek approval before introducing a bespoke code path into the shared engine.
+- Prefer composition of existing primitives to new concepts. Keep APIs and configuration schemas minimal; every new setting creates a maintenance burden.
+- Avoid compatibility shims and duplicated pathways unless required by an actual existing film. Remove dead code only when safe and within task scope.
+- Preserve old films as regression references. New features must be opt-in or backward compatible, and must not silently change a film's rendered output.
+- If a task seems to require a new engine abstraction, **stop before implementing it** and briefly explain the concrete need, the simplest existing workaround, the proposed addition, and its ongoing maintenance cost. Ask for approval unless the task explicitly authorizes that specific new capability.
+- Do not enlarge a task based on unrelated cleanup opportunities. Record separate ideas as suggestions, not code changes.
+
+**Success measure:** Can we produce the intended film reliably with *less* complexity? Not: how many new features did we add?
+
 ## Engineering practices
 
 - Read the relevant existing source and configuration before editing. Prefer a small, focused patch to architectural rewrites.
@@ -36,6 +58,6 @@ Giraffe is Gamantra's standalone illustrated-film engine, built with TypeScript,
 4. Explain how to confirm the fix in Remotion Studio.
 5. Do not call a UI issue fixed solely because a CLI render succeeds: Studio timeline behavior must be checked independently.
 
-## Current task
+## Task selection
 
-Start with `tasks/001-studio-timeline.md`. It is the first assigned Codex task. Do not expand its scope into unrelated refactoring.
+Work only on the task explicitly assigned in the current Codex request. Historical tasks under `tasks/` are records, not standing instructions to re-run or expand them.

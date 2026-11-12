@@ -1,14 +1,15 @@
 import React from 'react';
 import {AbsoluteFill, Easing, Img, interpolate, Sequence, staticFile, Track, useCurrentFrame} from 'remotion';
 import {Audio, Video} from '@remotion/media';
-import {edit} from './selected-film';
+import {edit, subtitles} from './selected-film';
+import {Subtitles} from './Subtitles';
 import type {Edit, Shot} from './types';
 
 const film = edit as Edit;
 const clamp = {extrapolateLeft: 'clamp' as const, extrapolateRight: 'clamp' as const};
 const at = (seconds: number) => Math.round(seconds * film.fps);
 
-const MediaShot: React.FC<{shot: Shot; fadeInFrames: number; lengthFrames: number}> = ({shot, fadeInFrames, lengthFrames}) => {
+const MediaShot: React.FC<{shot: Shot; fadeInFrames: number; lengthFrames: number; outgoingFadeFrames: number}> = ({shot, fadeInFrames, lengthFrames, outgoingFadeFrames}) => {
   const frame = useCurrentFrame(); // Relative to this shot's Sequence.
   const progress = interpolate(frame, [0, Math.max(1, lengthFrames)], [0, 1], {
     ...clamp,
@@ -27,8 +28,28 @@ const MediaShot: React.FC<{shot: Shot; fadeInFrames: number; lengthFrames: numbe
   };
   return (
     <AbsoluteFill style={{opacity, overflow: 'hidden'}}>
-      <AbsoluteFill style={{transform: `translate(${x}px, ${y}px) scale(${scale})`, transformOrigin: 'center'}}>
-        {shot.video ? <Video src={staticFile(shot.video)} muted loop style={mediaStyle}/>
+      <AbsoluteFill style={{transform: `translate(${x}px, ${y}px) scale(${scale})`, transformOrigin: shot.focusX === undefined ? 'center' : `${shot.focusX * 100}% 50%`}}>
+        {shot.video ? <>
+          <Video
+            src={staticFile(shot.video)}
+            muted
+            loop={shot.videoLoop ?? true}
+            durationInFrames={shot.videoLoop === false ? lengthFrames : undefined}
+            style={mediaStyle}
+          />
+          {/* Keep the outgoing frame decoded before the fade; changing freeze on a playing Video briefly clears its Studio canvas. */}
+          {shot.videoLoop === false && outgoingFadeFrames > 0 ? <Video
+            src={staticFile(shot.video)}
+            muted
+            from={lengthFrames}
+            trimBefore={lengthFrames - 1}
+            durationInFrames={outgoingFadeFrames}
+            freeze={0}
+            premountFor={lengthFrames}
+            showInTimeline={false}
+            style={mediaStyle}
+          /> : null}
+        </>
           : shot.image ? <Img src={staticFile(shot.image)} style={mediaStyle}/>
             : null}
       </AbsoluteFill>
@@ -45,10 +66,11 @@ export const IllustratedFilm: React.FC = () => (
       // Extend the prior shot under the following shot's fade-in.
       const next = film.scenes[index + 1];
       const nextFade = next ? Math.min(next.crossfadeFrames ?? 0, Math.max(0, at(next.endSec) - at(next.startSec))) : 0;
+      const label = `${shot.id} — ${shot.beat ?? 'Scene'} (${(shot.endSec - shot.startSec).toFixed(2)}s)`;
       return (
-        <Track key={shot.id} name={`${shot.id} — ${shot.beat ?? 'Scene'}`}>
+        <Track key={shot.id} name={label}>
           <Sequence
-            name={`${shot.id} — ${shot.beat ?? 'Scene'}`}
+            name={label}
             from={start}
             durationInFrames={end - start + nextFade}
           >
@@ -56,11 +78,13 @@ export const IllustratedFilm: React.FC = () => (
               shot={shot}
               fadeInFrames={fadeIn}
               lengthFrames={end - start}
+              outgoingFadeFrames={nextFade}
             />
           </Sequence>
         </Track>
       );
     })}
     <Audio src={staticFile(film.audio)}/>
+    {subtitles.length > 0 ? <Subtitles cues={subtitles}/> : null}
   </AbsoluteFill>
 );
